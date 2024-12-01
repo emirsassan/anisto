@@ -7,10 +7,7 @@ Anisto is a simple string editor for .msg files used in the game Persona 5 Royal
 - Export to .msg file
 
 ## Roadmap
-- [ ] Import and export files
-- [ ] Compile functionality
-- [ ] Live preview for in-game message box
-- [ ] Full refactor of the codebase
+See [this issue](https://github.com/emirsassan/anisto/issues/3)
 
 ## License
 This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) file for details.
