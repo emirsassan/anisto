@@ -1,4 +1,4 @@
-import { Cog, Folder, KeyboardMusic } from "lucide-solid";
+import { Cog, FilePenLine, Folder, KeyboardMusic } from "lucide-solid";
 import "./App.css";
 import { Show, createEffect, createSignal } from "solid-js";
 import Modal from "./components/Modal";
@@ -14,6 +14,10 @@ import { confidantPointCalculator } from "./utils/helpers";
 import { invoke } from "@tauri-apps/api/core";
 import { save } from "@tauri-apps/plugin-dialog";
 import KeybindListener from "./components/KeybindListener";
+import Button from "./components/ui/Button";
+import Input from "./components/ui/Input";
+import { createStore } from "solid-js/store";
+import NotificationV from "./components/ui/Notification";
 
 function App() {
   const appWindow = getCurrentWindow();
@@ -67,6 +71,14 @@ function App() {
     output?: string;
     attributes?: any;
   } | null>(null);
+
+  const [notification, setNotification] = createStore<{
+    message: string;
+    open: boolean;
+  }>({
+    message: "",
+    open: false
+  });
 
   const [proj, { setProject }] = useProject();
 
@@ -141,8 +153,6 @@ function App() {
           : file
     );
 
-    console.log(updatedFiles);
-
     const updatedProject = {
       ...currentProject,
       files: updatedFiles,
@@ -151,6 +161,10 @@ function App() {
 
     await ProjectManager.saveProject(updatedProject);
     setProject(updatedProject);
+    setNotification({
+      message: "File saved",
+      open: true
+    });
   };
 
   function processLivePreview() {
@@ -269,6 +283,12 @@ function App() {
 
         <div class="absolute right-0">
           <button
+            onClick={() => appWindow?.minimize()}
+            class="text-text hover:bg-primary px-2 py-0.5 transition-colors"
+          >
+            —
+          </button>
+          <button
             onClick={() => appWindow?.close()}
             class="text-text hover:bg-primary px-2 py-0.5 transition-colors"
           >
@@ -289,9 +309,9 @@ function App() {
               onClick={() => setShowSettings(false)}
               class="group relative w-full h-[60px] text-text hover:bg-secondary transition-colors flex items-center justify-center"
             >
-              <Folder size={28} />
+              <FilePenLine size={28} />
               <div class="absolute hidden group-hover:block select-none border border-zinc-800 bg-secondary px-2 py-1 rounded-md left-[70px] whitespace-nowrap">
-                Projects
+                Editor
               </div>
             </button>
           </div>
@@ -434,10 +454,9 @@ function App() {
 
                       <Show when={characterCheckbox()}>
                         <div class="mt-4 flex items-center gap-2">
-                          <input
+                          <Input
                             type="text"
-                            class="w-96 bg-primary border border-zinc-800 focus:outline-none p-2"
-                            placeholder="Character name"
+                            label="Character name"
                             value={characterName()}
                             onInput={(e) => setCharacterName(e.target.value)}
                           />
@@ -463,12 +482,13 @@ function App() {
                           </label>
 
                           <Show when={confidantPoint()}>
-                            <button
+                            <Button
                               onClick={() => setConfidantPointModal(true)}
-                              class="bg-white text-background px-3 py-1 transition-colors"
+                              size="sm"
+                              variant="secondary"
                             >
                               +
-                            </button>
+                            </Button>
                           </Show>
 
                           <Modal
@@ -526,12 +546,14 @@ function App() {
                         </div>
                       </Show>
 
-                      <button
-                        onClick={handleSaveFile}
-                        class="absolute select-none bottom-4 right-4 bg-white text-background hover:bg-white/90 px-4 py-2 transition-colors"
-                      >
-                        Save
-                      </button>
+                      <div class="absolute select-none bottom-4 right-4 flex gap-2">
+                        <Button
+                          onClick={handleSaveFile}
+                          variant="secondary"
+                        >
+                          Save
+                        </Button>
+                      </div>
 
                       <div class="absolute top-4 right-4 w-96 select-none">
                         <Dropdown
@@ -717,6 +739,8 @@ function App() {
           </div>
         </div>
       </Modal>
+
+      <NotificationV duration={3000} message={notification.message} isOpen={notification.open} onClose={() => setNotification({ open: false })} />
     </div>
   );
 }
