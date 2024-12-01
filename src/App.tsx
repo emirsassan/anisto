@@ -18,6 +18,7 @@ import Button from "./components/ui/Button";
 import Input from "./components/ui/Input";
 import { createStore } from "solid-js/store";
 import NotificationV from "./components/ui/Notification";
+import Alert from "./components/ui/Alert";
 
 function App() {
   const appWindow = getCurrentWindow();
@@ -79,6 +80,10 @@ function App() {
     message: "",
     open: false
   });
+
+  const [compileModal, setCompileModal] = createSignal(false);
+
+  const [compileFilePath, setCompileFilePath] = createSignal("");
 
   const [proj, { setProject }] = useProject();
 
@@ -232,6 +237,21 @@ function App() {
       outputPath: path,
     });
     setMenubar("");
+    setCompileFilePath(path || "");
+    setCompileModal(true);
+  };
+
+  const handleCompile = async () => {
+    await invoke("compile_msg", {
+      msgPath: compileFilePath(),
+    }).then(() => {
+      setNotification({
+        message: "Project compiled",
+        open: true
+      });
+      setCompileModal(false);
+      setCompileFilePath("");
+    });
   };
 
   return (
@@ -739,6 +759,12 @@ function App() {
           </div>
         </div>
       </Modal>
+
+      <Alert isOpen={compileModal()} onOk={handleCompile} onClose={() => setCompileModal(false)} title="Compile">
+        <p class="text-text">
+          Do you want to compile the output file?
+        </p>
+      </Alert>
 
       <NotificationV duration={3000} message={notification.message} isOpen={notification.open} onClose={() => setNotification({ open: false })} />
     </div>

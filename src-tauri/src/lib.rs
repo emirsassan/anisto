@@ -6,7 +6,10 @@ fn greet(name: &str) -> String {
 
 use dirs;
 use serde::{Deserialize, Serialize};
+use tauri::Manager;
 use std::fs;
+use std::process::{Command, Stdio};
+use tauri::path::BaseDirectory;
 
 #[derive(Serialize, Deserialize)]
 struct FileAttributes {
@@ -129,6 +132,30 @@ async fn get_app_data_dir() -> Result<String, String> {
     Ok(app_dir.to_string_lossy().to_string())
 }
 
+#[tauri::command]
+async fn compile_msg(handle: tauri::AppHandle, msg_path: String) -> Result<(), String> {
+    let resource_path = handle.path().resolve("atlus-compiler/AtlusScriptCompiler.exe", BaseDirectory::Resource).unwrap();
+
+    let output = Command::new(resource_path)
+        //.arg(format!("{} -Compile -OutFormat V1BE -Library P5R -Encoding P5R_EFIGS -Hook -SumBits", msg_path))
+        .arg(msg_path)
+        .arg("-Compile")
+        .arg("-OutFormat")
+        .arg("V1BE")
+        .arg("-Library")
+        .arg("P5R")
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .output()
+        .map_err(|e| e.to_string())?;
+
+    if output.status.success() {
+        Ok(())
+    } else {
+        Err("Failed to compile".to_string())
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -142,7 +169,8 @@ pub fn run() {
             delete_project,
             update_project,
             get_app_data_dir,
-            export_project
+            export_project,
+            compile_msg
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

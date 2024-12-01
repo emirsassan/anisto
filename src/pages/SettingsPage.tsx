@@ -3,6 +3,8 @@ import { invoke } from "@tauri-apps/api/core";
 import Input from "../components/ui/Input";
 import NotificationV from "../components/ui/Notification";
 import Button from "../components/ui/Button";
+import Alert from "../components/ui/Alert";
+import { createStore } from "solid-js/store";
 
 const SettingsPage: Component = () => {
   const [appDataDirPath, setAppDataDirPath] = createSignal("");
@@ -14,6 +16,12 @@ const SettingsPage: Component = () => {
   const [notificationOpen, setNotificationOpen] = createSignal(false);
   const [notificationMessage, setNotificationMessage] = createSignal("");
 
+  const [alert, setAlert] = createStore({
+    open: false,
+    title: "",
+    message: "",
+  });
+
   const showNotification = (
     message: string
   ) => {
@@ -23,6 +31,10 @@ const SettingsPage: Component = () => {
     setTimeout(() => {
       setNotificationOpen(false);
     }, 3000);
+  };
+
+  const showAlert = (title: string, message: string) => {
+    setAlert({ open: true, title, message });
   };
 
   return (
@@ -47,9 +59,14 @@ const SettingsPage: Component = () => {
         </div>
 
         <Button class="max-w-96" onClick={() => showNotification("Settings saved")}>Test notification</Button>
+        <Button class="max-w-96" onClick={() => showAlert("Test alert", "This is a test alert")}>Test alert</Button>
       </div>
 
       <NotificationV message={notificationMessage()} isOpen={notificationOpen()} onClose={() => setNotificationOpen(false)} />
+
+      <Alert isOpen={alert.open} onOk={() => setAlert({ open: false })} onClose={() => setAlert({ open: false })}>
+        <p>{alert.message}</p>
+      </Alert>
     </div>
   );
 };
