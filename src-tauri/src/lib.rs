@@ -156,6 +156,39 @@ async fn compile_msg(handle: tauri::AppHandle, msg_path: String) -> Result<(), S
     }
 }
 
+#[tauri::command]
+async fn test_compiler(handle: tauri::AppHandle) -> Result<String, String> {
+    let resource_path = handle.path().resolve("atlus-compiler/AtlusScriptCompiler.exe", BaseDirectory::Resource).unwrap();
+    let test_script = handle.path().resolve("tests/test.msg", BaseDirectory::Resource).unwrap();
+
+    let output = Command::new(resource_path)
+        .arg(test_script)
+        .arg("-Compile")
+        .arg("-OutFormat")
+        .arg("V1BE")
+        .arg("-Library")
+        .arg("P5R")
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .output()
+        .map_err(|e| e.to_string())?;
+
+    if output.status.success() {
+        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+        // Replace any invalid characters that could break JSON parsing
+        let cleaned = stdout.replace('\u{0}', "")
+                           .replace('\u{001b}', "")
+                           .replace('\r', "");
+        Ok(cleaned)
+    } else {
+        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+        let cleaned = stderr.replace('\u{0}', "")
+                           .replace('\u{001b}', "")
+                           .replace('\r', "");
+        Err(cleaned)
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -170,7 +203,8 @@ pub fn run() {
             update_project,
             get_app_data_dir,
             export_project,
-            compile_msg
+            compile_msg,
+            test_compiler
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

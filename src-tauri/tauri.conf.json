@@ -33,7 +33,8 @@
       "icons/icon.ico"
     ],
     "resources": [
-      "atlus-compiler/**/*"
+      "atlus-compiler/**/*",
+      "tests/**/*"
     ]
   }
 }

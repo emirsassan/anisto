@@ -126,7 +126,7 @@ function App() {
     setNewFileName("");
   };
 
-  const handleSaveFile = async () => {
+  const handleSaveFile = async (auto = false) => {
     const currentProject = proj();
     const currentFile = selectedFile();
     if (!currentProject || !currentFile) return;
@@ -167,7 +167,7 @@ function App() {
     await ProjectManager.saveProject(updatedProject);
     setProject(updatedProject);
     setNotification({
-      message: "File saved",
+      message: auto ? "File automatically saved" : "File saved",
       open: true
     });
   };
@@ -258,7 +258,7 @@ function App() {
     <div class="flex flex-col font-outfit" onClick={() => setContextMenu(null)}>
       <KeybindListener
         actions={{
-          s: handleSaveFile,
+          s: () => handleSaveFile(false),
         }}
       />
       <div
@@ -363,6 +363,7 @@ function App() {
                             <div
                               class="hover:bg-primary hover:cursor-pointer p-1 flex items-center justify-center"
                               onClick={() => {
+                                handleSaveFile(true);
                                 setSelectedFile(x);
                                 setString(x.text);
                               }}
@@ -568,7 +569,7 @@ function App() {
 
                       <div class="absolute select-none bottom-4 right-4 flex gap-2">
                         <Button
-                          onClick={handleSaveFile}
+                          onClick={() => handleSaveFile(false)}
                           variant="secondary"
                         >
                           Save

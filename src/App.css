@@ -10,3 +10,17 @@
   font-family: "Outfit";
   src: url("/fonts/Outfit-VariableFont_wght.ttf");
 }
+
+@layer base {
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-neutral-700;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-neutral-500;
+  }
+}
