@@ -1,6 +1,6 @@
 # Anisto
 <p align="center">
-  <img src="https://i.e-z.host/n67ioagn.png" alt="Anisto" width="200">
+  <img src="https://i.imgur.com/QA8HWPY.png" alt="Anisto" width="200">
 </p>
 
 <p align="center">
