@@ -1,4 +1,4 @@
-import { Component, createSignal, For, onMount } from "solid-js";
+import { Component, createEffect, createSignal, For, onMount, Show } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
 import Input from "../components/ui/Input";
 import NotificationV from "../components/ui/Notification";
@@ -6,17 +6,51 @@ import Button from "../components/ui/Button";
 import Alert from "../components/ui/Alert";
 import { createStore } from "solid-js/store";
 import Tabs from "../components/ui/Tabs";
+import KeybindListener from "../components/KeybindListener";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from "../components/ui/Table";
+import Switch from "../components/ui/Switch";
+import ChromaKeyVideo from "../components/experiments/ChromaKeyVideo";
 
 const SettingsPage: Component = () => {
+  const [showVideo, setShowVideo] = createSignal(false);
+
+  createEffect(() => {
+    if (showVideo()) {
+      setTimeout(() => {
+        setShowVideo(false);
+      }, 4000);
+    }
+  });
+
   return (
-    <div class="text-text p-2">
-      <Tabs
-        tabs={[
-          { id: "general", label: "General", content: <GeneralSettings /> },
-          { id: "compiler", label: "Compiler", content: <CompilerSettings /> },
-        ]}
-      />
-    </div>
+    <>
+      <Show when={showVideo()}>
+        <div class="z-50 absolute top-0 left-0">
+          <ChromaKeyVideo
+            src="/videos/stuff.mp4"
+            colorToRemove="#23cc00"
+            smoothness={0.1}
+            similarity={0.4}
+            class="w-screen h-screen"
+          />
+        </div>
+      </Show>
+
+      <div class="text-text p-2">
+        <Tabs
+          tabs={[
+            { id: "general", label: "General", content: <GeneralSettings setShowVideo={setShowVideo} /> },
+            { id: "compiler", label: "Compiler", content: <CompilerSettings /> },
+          ]}
+        />
+      </div>
+    </>
   );
 };
 
@@ -37,8 +71,33 @@ const CompilerSettings: Component = () => {
     setLoading(false);
   };
 
+  const handleSaveSetting = async () => {
+    try {
+      await invoke("set_string_setting", {
+        key: "compiler_flags",
+        value: compilerOptions.flags,
+      });
+    } catch (error) {
+      console.error("Failed to save settings:", error);
+    }
+  };
+
+  createEffect(async () => {
+    const setting: { String: string } = await invoke("get_setting", {
+      key: "compiler_flags",
+    });
+    setCompilerOptions({ flags: setting.String });
+  });
+
   return (
     <div class="flex flex-row">
+      <KeybindListener
+        actions={{
+          s: () => {
+            handleSaveSetting();
+          },
+        }}
+      />
       <div class="flex flex-col gap-2">
         <p class="text-sm text-zinc-400">
           Settings for the compiler. (work in progress)
@@ -52,7 +111,12 @@ const CompilerSettings: Component = () => {
         />
 
         <Button
-          onClick={() => setCompilerOptions({ edit: !compilerOptions.edit })}
+          onClick={() => {
+            setCompilerOptions({ edit: !compilerOptions.edit });
+            if (compilerOptions.edit) {
+              handleSaveSetting();
+            }
+          }}
           class="max-w-96"
           variant="secondary"
         >
@@ -78,8 +142,9 @@ const CompilerSettings: Component = () => {
   );
 };
 
-const GeneralSettings: Component = () => {
+const GeneralSettings: Component<{ setShowVideo: (show: boolean) => void }> = (props) => {
   const [appDataDirPath, setAppDataDirPath] = createSignal("");
+  const [checked, setChecked] = createSignal(false);
 
   onMount(async () => {
     setAppDataDirPath((await invoke("get_app_data_dir")) + "\\projects");
@@ -110,6 +175,17 @@ const GeneralSettings: Component = () => {
   const showAlert = (title: string, message: string) => {
     setAlert({ open: true, title, message });
   };
+
+  const handleSwitchChange = (checked: boolean) => {
+    setChecked(checked);
+    if (checked) {
+      props.setShowVideo(true);
+      setTimeout(() => {
+        setChecked(false);
+      }, 4000);
+    }
+  };
+
   return (
     <>
       <div class="flex flex-col gap-2">
@@ -128,16 +204,41 @@ const GeneralSettings: Component = () => {
 
         <Button
           class="max-w-96"
-          onClick={() => showNotification("Settings saved")}
+          onClick={() => {
+            showNotification("Settings saved");
+          }}
         >
           Test notification
         </Button>
+
         <Button
           class="max-w-96"
           onClick={() => showAlert("Test alert", "This is a test alert")}
         >
           Test alert
         </Button>
+
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Key</TableCell>
+              <TableCell>Value</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              <TableCell>Light Mode</TableCell>
+              <TableCell>
+                <Switch
+                  checked={checked()}
+                  label="JONKLER"
+                  
+                  onChange={handleSwitchChange}
+                />
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </div>
 
       <NotificationV

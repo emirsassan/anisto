@@ -11,6 +11,8 @@ use std::fs;
 use std::process::{Command, Stdio};
 use tauri::path::BaseDirectory;
 
+mod settings;
+
 #[derive(Serialize, Deserialize)]
 struct FileAttributes {
     lipsync: Option<bool>,
@@ -204,7 +206,13 @@ pub fn run() {
             get_app_data_dir,
             export_project,
             compile_msg,
-            test_compiler
+            test_compiler,
+            settings::get_setting,
+            settings::set_boolean_setting,
+            settings::set_integer_setting,
+            settings::set_string_setting,
+            settings::get_all_settings,
+            settings::remove_setting,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
