@@ -33,10 +33,10 @@ const SettingsPage: Component = () => {
       <Show when={showVideo()}>
         <div class="z-50 absolute top-0 left-0">
           <ChromaKeyVideo
-            src="/videos/stuff.mp4"
-            colorToRemove="#23cc00"
-            smoothness={0.1}
-            similarity={0.4}
+            src="/videos/trans_joker_ong_regreen_2.qt"
+            colorToRemove="#00ff00"
+            smoothness={0}
+            similarity={0.7}
             class="w-screen h-screen"
           />
         </div>
