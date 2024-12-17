@@ -11,6 +11,11 @@
   src: url("/fonts/Outfit-VariableFont_wght.ttf");
 }
 
+@font-face {
+  font-family: "Optima";
+  src: url("/fonts/OptimaNovaLT-Black.ttf");
+}
+
 @layer base {
   ::-webkit-scrollbar {
     @apply w-2;
@@ -23,4 +28,33 @@
   ::-webkit-scrollbar-thumb {
     @apply bg-neutral-500;
   }
+}
+
+#boxCanvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#tileCanvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+}
+
+#nameCanvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+}
+
+#textCanvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 4;
+  letter-spacing: 0.5px;
 }

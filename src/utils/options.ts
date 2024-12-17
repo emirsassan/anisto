@@ -45,3 +45,24 @@ export const DPadOptions = [
   { label: "DPad Left", value: "left" },
   { label: "DPad Right", value: "right" },
 ];
+
+export const PreviewModes = [
+  { label: "Code", value: "code" },
+  { label: "Live", value: "live" },
+];
+
+export const BoxTypesLive = [
+  { label: "Persona 5 Royal", value: "normal_small" },
+  { label: "Persona 5 (No portrait)", value: "normal_no_portrait" },
+  { label: "Persona 5 Strikers", value: "strikers" },
+  { label: "Persona 5 Dancing in Starlight", value: "starlight" },
+];
+
+export const PortraitOptions = [
+  { label: "Ann", value: "ann" },
+  { label: "Aigis", value: "aigis" },
+  { label: "Izanagi", value: "izanagi" },
+  { label: "Joker", value: "joker" },
+  { label: "Makoto", value: "makoto" },
+  { label: "Makoto (No portrait)", value: "makoto_no_portrait" },
+];

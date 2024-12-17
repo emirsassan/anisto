@@ -12,7 +12,8 @@ export default {
         "secondary": "#191919"
       },
       fontFamily: {
-        "outfit": ["Outfit", "sans-serif"]
+        "outfit": ["Outfit", "sans-serif"],
+        "optima": ["Optima", "sans-serif"]
       },
       keyframes: {
         'fade-in': {

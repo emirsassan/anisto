@@ -60,19 +60,6 @@ impl Settings {
     }
 }
 
-// Helper functions for creating setting values
-pub fn string_value(s: impl Into<String>) -> SettingValue {
-    SettingValue::String(s.into())
-}
-
-pub fn integer_value(i: i64) -> SettingValue {
-    SettingValue::Integer(i)
-}
-
-pub fn boolean_value(b: bool) -> SettingValue {
-    SettingValue::Boolean(b)
-}
-
 #[tauri::command]
 pub async fn get_setting(key: String) -> Result<Option<SettingValue>, String> {
     let settings = Settings::load()?;

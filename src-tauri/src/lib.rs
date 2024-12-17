@@ -4,45 +4,18 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
+mod models;
+mod settings;
+
+use models::{Project, File, FileAttributes};
 use dirs;
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
 use std::fs;
 use std::process::{Command, Stdio};
 use tauri::path::BaseDirectory;
-
-mod settings;
-
-#[derive(Serialize, Deserialize)]
-struct FileAttributes {
-    lipsync: Option<bool>,
-    confidantPoint: Option<bool>,
-    boxType: Option<String>,
-    confidantId: Option<i32>,
-    pointsGained: Option<i32>,
-    modelId: Option<i32>,
-    characterName: Option<String>,
-    characterCheckbox: Option<bool>,
-}
-
-#[derive(Serialize, Deserialize)]
-struct File {
-    id: String,
-    name: String,
-    text: String,
-    output: Option<String>,
-    attributes: Option<FileAttributes>,
-}
-
-#[derive(Serialize, Deserialize)]
-struct Project {
-    id: String,
-    name: String,
-    description: Option<String>,
-    created_at: String,
-    updated_at: String,
-    files: Vec<File>,
-}
+use royal::Message;
+use crate::models::{SerializableMessage, MessageAttributes};
 
 #[tauri::command]
 async fn save_project(project: Project) -> Result<(), String> {

@@ -60,8 +60,6 @@ export class ProjectManager {
       updated_at: project.updated_at,
     };
 
-    console.log(serializedProject);
-
     await invoke('save_project', { project: serializedProject });
   }
 

@@ -61,6 +61,7 @@ name = "anisto"
 version = "0.1.0"
 dependencies = [
  "dirs",
+ "royal",
  "serde",
  "serde_json",
  "tauri",
@@ -2931,6 +2932,12 @@ dependencies = [
  "web-sys",
  "windows-sys 0.48.0",
 ]
+
+[[package]]
+name = "royal"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7dddf74a04752968fe7438b5a043f9540a51b27387b70fdc6f463974f417bebe"
 
 [[package]]
 name = "rustc-demangle"
