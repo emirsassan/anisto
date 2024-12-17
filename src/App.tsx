@@ -1,14 +1,12 @@
-import { Bot, Cog, FilePenLine, Folder, KeyboardMusic } from "lucide-solid";
+import { Cog, FilePenLine, KeyboardMusic } from "lucide-solid";
 import "./App.css";
 import { Show, createEffect, createSignal } from "solid-js";
 import Modal from "./components/Modal";
 import Dropdown from "./components/Dropdown";
 import {
   BoxTypes,
-  BoxTypesLive,
   DPadOptions,
   HighlightColors,
-  PortraitOptions,
   PreviewModes,
 } from "./utils/options";
 import ContextMenu from "./components/TestStuff";
@@ -27,17 +25,9 @@ import { createStore } from "solid-js/store";
 import NotificationV from "./components/ui/Notification";
 import Alert from "./components/ui/Alert";
 import LivePreview from "./components/experiments/LivePreview";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-} from "./components/ui/Table";
 import PortraitConfig from "./pages/PortraitConfig";
 import { PortraitConfigProvider } from "./context/portraitConfigProvider";
 import { usePortraitConfig } from "./context/portraitConfigProvider";
-import Command from "./components/ui/Command";
 
 function App() {
   const appWindow = getCurrentWindow();

@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use royal::MessageFlags;
 
 #[derive(Serialize, Deserialize)]
 pub struct FileAttributes {

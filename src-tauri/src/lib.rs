@@ -7,15 +7,12 @@ fn greet(name: &str) -> String {
 mod models;
 mod settings;
 
-use models::{Project, File, FileAttributes};
+use models::Project;
 use dirs;
-use serde::{Deserialize, Serialize};
 use tauri::Manager;
 use std::fs;
 use std::process::{Command, Stdio};
 use tauri::path::BaseDirectory;
-use royal::Message;
-use crate::models::{SerializableMessage, MessageAttributes};
 
 #[tauri::command]
 async fn save_project(project: Project) -> Result<(), String> {
