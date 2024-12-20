@@ -7,7 +7,6 @@ import {
   Show,
 } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
-import { open } from '@tauri-apps/plugin-dialog';
 import Input from "../components/ui/Input";
 import NotificationV from "../components/ui/Notification";
 import Button from "../components/ui/Button";
@@ -25,8 +24,12 @@ import {
 import Switch from "../components/ui/Switch";
 import ChromaKeyVideo from "../components/experiments/ChromaKeyVideo";
 import FocusModal from "../components/ui/FocusModal";
+import FileTree from "../components/FileTree";
+import { WindowControls } from "../components/WindowControls";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 
 const SettingsPage: Component = () => {
+  const appWindow = getCurrentWindow();
   const [showVideo, setShowVideo] = createSignal(false);
 
   createEffect(() => {
@@ -39,43 +42,59 @@ const SettingsPage: Component = () => {
 
   return (
     <>
-      <Show when={showVideo()}>
-        <div class="z-50 absolute top-0 left-0">
-          <ChromaKeyVideo
-            src="/videos/trans_joker_ong_regreen_2.qt"
-            colorToRemove="#00ff00"
-            smoothness={0}
-            similarity={0.7}
-            class="w-screen h-screen"
-          />
-        </div>
-      </Show>
+      <div class="flex flex-col font-outfit h-screen">
+        {/* App Header */}
+        <header
+          class="h-[30px] bg-secondary flex items-center select-none border-b border-zinc-800"
+          data-tauri-drag-region
+        >
+          <div class="text-text text-md px-[0.6rem]">Anisto</div>
 
-      <div class="text-text p-2">
-        <Tabs
-          tabs={[
-            {
-              id: "general",
-              label: "General",
-              content: <GeneralSettings />,
-            },
-            {
-              id: "compiler",
-              label: "Compiler",
-              content: <CompilerSettings />,
-            },
-            {
-              id: "ui",
-              label: "Experiments",
-              content: <UiExperiments setShowVideo={setShowVideo} />,
-            },
-            {
-              id: "feature-flags",
-              label: "Feature Flags",
-              content: <FeatureFlags />,
-            },
-          ]}
-        />
+          {/* Window Controls */}
+          <WindowControls appWindow={appWindow} />
+        </header>
+
+        {/* Main Content */}
+        <main class="flex flex-1">
+          <Show when={showVideo()}>
+            <div class="z-50 absolute top-0 left-0">
+              <ChromaKeyVideo
+                src="/videos/trans_joker_ong_regreen_2.qt"
+                colorToRemove="#00ff00"
+                smoothness={0}
+                similarity={0.7}
+                class="w-screen h-screen"
+              />
+            </div>
+          </Show>
+
+          <div class="text-text p-2 w-full">
+            <Tabs
+              tabs={[
+                {
+                  id: "general",
+                  label: "General",
+                  content: <GeneralSettings />,
+                },
+                {
+                  id: "compiler",
+                  label: "Compiler",
+                  content: <CompilerSettings />,
+                },
+                {
+                  id: "ui",
+                  label: "Experiments",
+                  content: <UiExperiments setShowVideo={setShowVideo} />,
+                },
+                {
+                  id: "feature-flags",
+                  label: "Feature Flags",
+                  content: <FeatureFlags />,
+                },
+              ]}
+            />
+          </div>
+        </main>
       </div>
     </>
   );
@@ -171,7 +190,9 @@ const CompilerSettings: Component = () => {
 
 const GeneralSettings: Component = () => {
   const [appDataDirPath, setAppDataDirPath] = createSignal("");
-  const [autoSaveNotifications, setAutoSaveNotifications] = createSignal<boolean | any>();
+  const [autoSaveNotifications, setAutoSaveNotifications] = createSignal<
+    boolean | any
+  >();
 
   onMount(async () => {
     setAppDataDirPath((await invoke("get_app_data_dir")) + "\\projects");
@@ -180,7 +201,7 @@ const GeneralSettings: Component = () => {
   createEffect(async () => {
     try {
       const setting: { Boolean: boolean } = await invoke("get_setting", {
-        key: "auto_save_notifications", 
+        key: "auto_save_notifications",
       });
       if (setting.Boolean) {
         setAutoSaveNotifications(setting.Boolean);
@@ -195,7 +216,7 @@ const GeneralSettings: Component = () => {
     try {
       await invoke("set_boolean_setting", {
         key: "auto_save_notifications",
-        value: autoSaveNotifications()
+        value: autoSaveNotifications(),
       });
     } catch (error) {
       console.error("Failed to save feature flags:", error);
@@ -218,7 +239,11 @@ const GeneralSettings: Component = () => {
           />
 
           <div class="mt-4">
-            <Switch checked={autoSaveNotifications()} label="Auto-save notifications" onChange={handleFlagChange} />
+            <Switch
+              checked={autoSaveNotifications()}
+              label="Auto-save notifications"
+              onChange={handleFlagChange}
+            />
           </div>
         </div>
       </div>
@@ -268,6 +293,38 @@ const UiExperiments: Component<{ setShowVideo: (show: boolean) => void }> = (
       }, 4000);
     }
   };
+
+  const items = [
+    {
+      id: "1",
+      name: "src",
+      type: "folder" as const,
+      children: [
+        {
+          id: "2",
+          name: "components",
+          type: "folder" as const,
+          children: [
+            {
+              id: "3",
+              name: "FileTree.tsx",
+              type: "file" as const,
+            },
+          ],
+        },
+        {
+          id: "4",
+          name: "App.tsx",
+          type: "file" as const,
+        },
+      ],
+    },
+    {
+      id: "5",
+      name: "package.json",
+      type: "file" as const,
+    },
+  ];
 
   return (
     <>
@@ -326,6 +383,14 @@ const UiExperiments: Component<{ setShowVideo: (show: boolean) => void }> = (
         <div class="p-4">
           <h2 class="text-text font-medium text-xl">Test modal</h2>
           <p class="text-zinc-400 text-sm mt-1">This is a test modal</p>
+
+          <FileTree
+            items={items}
+            onFileSelect={(file) => {
+              console.log("Selected file:", file);
+            }}
+            selectedFileId="3" // ID of currently selected file
+          />
         </div>
       </FocusModal>
 
@@ -357,23 +422,35 @@ const FeatureFlags: Component = () => {
   const [flags, setFlags] = createSignal<FeatureFlag[]>([
     {
       id: "message-box-live-preview",
-      name: "Message box live preview", 
-      description: "Enables live preview of message boxes in the message editor.",
+      name: "Message box live preview",
+      description:
+        "Enables live preview of message boxes in the message editor.",
       checked: false,
-    }
+    },
+    {
+      id: "wip-editor",
+      name: "WIP Editor",
+      description:
+        "Enables the work-in-progress editor with improved features and UI (No saving).",
+      checked: false,
+    },
   ]);
 
   createEffect(async () => {
     try {
       const setting: { String: string } = await invoke("get_setting", {
-        key: "feature_flags", 
+        key: "feature_flags",
       });
       if (setting.String) {
         const savedFlags = JSON.parse(setting.String);
-        setFlags(flags().map(flag => ({
-          ...flag,
-          checked: savedFlags.find((f: FeatureFlag) => f.id === flag.id)?.checked ?? flag.checked
-        })));
+        setFlags(
+          flags().map((flag) => ({
+            ...flag,
+            checked:
+              savedFlags.find((f: FeatureFlag) => f.id === flag.id)?.checked ??
+              flag.checked,
+          }))
+        );
       }
     } catch (error) {
       console.error("Failed to load feature flags:", error);
@@ -381,16 +458,14 @@ const FeatureFlags: Component = () => {
   });
 
   const handleFlagChange = async (id: string, checked: boolean) => {
-    setFlags(prev => 
-      prev.map(flag => 
-        flag.id === id ? {...flag, checked} : flag
-      )
+    setFlags((prev) =>
+      prev.map((flag) => (flag.id === id ? { ...flag, checked } : flag))
     );
 
     try {
       await invoke("set_string_setting", {
         key: "feature_flags",
-        value: JSON.stringify(flags())
+        value: JSON.stringify(flags()),
       });
     } catch (error) {
       console.error("Failed to save feature flags:", error);
@@ -401,7 +476,9 @@ const FeatureFlags: Component = () => {
     <div>
       <div class="mb-2">
         <h3 class="text-md font-medium">Feature Flags</h3>
-        <p class="text-sm text-zinc-400">Some feature flags might require a restart to take effect.</p>
+        <p class="text-sm text-zinc-400">
+          Some feature flags might require a restart to take effect.
+        </p>
       </div>
       <div class="grid grid-cols-3 gap-2">
         <For each={flags()}>
@@ -413,8 +490,8 @@ const FeatureFlags: Component = () => {
               </p>
 
               <div class="absolute bottom-2 right-2">
-                <Switch 
-                  checked={item.checked} 
+                <Switch
+                  checked={item.checked}
                   onChange={(checked) => handleFlagChange(item.id, checked)}
                 />
               </div>

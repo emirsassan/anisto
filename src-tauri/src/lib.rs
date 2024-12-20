@@ -7,12 +7,12 @@ fn greet(name: &str) -> String {
 mod models;
 mod settings;
 
-use models::Project;
 use dirs;
-use tauri::Manager;
+use models::Project;
 use std::fs;
 use std::process::{Command, Stdio};
 use tauri::path::BaseDirectory;
+use tauri::Manager;
 
 #[tauri::command]
 async fn save_project(project: Project) -> Result<(), String> {
@@ -106,7 +106,13 @@ async fn get_app_data_dir() -> Result<String, String> {
 
 #[tauri::command]
 async fn compile_msg(handle: tauri::AppHandle, msg_path: String) -> Result<(), String> {
-    let resource_path = handle.path().resolve("atlus-compiler/AtlusScriptCompiler.exe", BaseDirectory::Resource).unwrap();
+    let resource_path = handle
+        .path()
+        .resolve(
+            "atlus-compiler/AtlusScriptCompiler.exe",
+            BaseDirectory::Resource,
+        )
+        .unwrap();
 
     let output = Command::new(resource_path)
         //.arg(format!("{} -Compile -OutFormat V1BE -Library P5R -Encoding P5R_EFIGS -Hook -SumBits", msg_path))
@@ -130,8 +136,17 @@ async fn compile_msg(handle: tauri::AppHandle, msg_path: String) -> Result<(), S
 
 #[tauri::command]
 async fn test_compiler(handle: tauri::AppHandle) -> Result<String, String> {
-    let resource_path = handle.path().resolve("atlus-compiler/AtlusScriptCompiler.exe", BaseDirectory::Resource).unwrap();
-    let test_script = handle.path().resolve("tests/test.msg", BaseDirectory::Resource).unwrap();
+    let resource_path = handle
+        .path()
+        .resolve(
+            "atlus-compiler/AtlusScriptCompiler.exe",
+            BaseDirectory::Resource,
+        )
+        .unwrap();
+    let test_script = handle
+        .path()
+        .resolve("tests/test.msg", BaseDirectory::Resource)
+        .unwrap();
 
     let output = Command::new(resource_path)
         .arg(test_script)
@@ -148,15 +163,17 @@ async fn test_compiler(handle: tauri::AppHandle) -> Result<String, String> {
     if output.status.success() {
         let stdout = String::from_utf8_lossy(&output.stdout).to_string();
         // Replace any invalid characters that could break JSON parsing
-        let cleaned = stdout.replace('\u{0}', "")
-                           .replace('\u{001b}', "")
-                           .replace('\r', "");
+        let cleaned = stdout
+            .replace('\u{0}', "")
+            .replace('\u{001b}', "")
+            .replace('\r', "");
         Ok(cleaned)
     } else {
         let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-        let cleaned = stderr.replace('\u{0}', "")
-                           .replace('\u{001b}', "")
-                           .replace('\r', "");
+        let cleaned = stderr
+            .replace('\u{0}', "")
+            .replace('\u{001b}', "")
+            .replace('\r', "");
         Err(cleaned)
     }
 }
